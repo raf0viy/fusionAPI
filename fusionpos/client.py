@@ -29,6 +29,14 @@ class FusionPOSClient:
         response.raise_for_status()
         return response.json()
 
+    def get_client(self, client_id):
+        """Gets a single client by their ID."""
+        url = f"{self.base_url}api/v2/clients/{client_id}"
+        headers = self._get_auth_headers()
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+
     def add_client(self, name, lastname=None, phone=None, email=None, **kwargs):
         """Adds a new client."""
         url = f"{self.base_url}api/v2/clients"
@@ -54,3 +62,58 @@ class FusionPOSClient:
 
         response.raise_for_status()
         return response.json()
+
+    def update_client(self, client_id, **kwargs):
+        """Updates an existing client."""
+        url = f"{self.base_url}api/v2/clients/{client_id}"
+        headers = self._get_auth_headers()
+        
+        response = requests.patch(url, headers=headers, json=kwargs)
+        
+        if response.status_code == 422:
+            try:
+                error_details = response.json()
+                raise Exception(f"Data Validation Failed: {error_details}")
+            except requests.exceptions.JSONDecodeError:
+                response.raise_for_status()
+
+        response.raise_for_status()
+        return response.json()
+
+    def delete_client(self, client_id):
+        """Deletes a client by their ID."""
+        url = f"{self.base_url}api/v2/clients/action/delete"
+        headers = self._get_auth_headers()
+        data = {"id": client_id}
+        
+        response = requests.patch(url, headers=headers, json=data)
+        
+        response.raise_for_status()
+        return response.json()
+
+    def refill_client_balance(self, client_id, amount, comment):
+        """Refills a client's balance."""
+        url = f"{self.base_url}api/v2/clients/{client_id}/refill"
+        headers = self._get_auth_headers()
+        data = {"amount": amount, "comment": comment}
+        
+        response = requests.put(url, headers=headers, json=data)
+        
+        if response.status_code == 422:
+            try:
+                error_details = response.json()
+                raise Exception(f"Data Validation Failed: {error_details}")
+            except requests.exceptions.JSONDecodeError:
+                response.raise_for_status()
+
+        response.raise_for_status()
+        return response.json()
+
+    def get_client_actions(self):
+        """Gets the list of available client actions."""
+        url = f"{self.base_url}api/v2/clients/actions"
+        headers = self._get_auth_headers()
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+

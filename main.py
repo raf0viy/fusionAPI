@@ -28,6 +28,10 @@ def main():
     # Get clients command
     subparsers.add_parser("get-clients", help="Get all clients")
 
+    # Get client by ID command
+    get_client_parser = subparsers.add_parser("get-client", help="Get a single client by ID")
+    get_client_parser.add_argument("--id", type=int, required=True, help="The ID of the client to retrieve")
+
     # Add client command
     add_client_parser = subparsers.add_parser("add-client", help="Add a new client")
     add_client_parser.add_argument("--name", required=True, help="Client's name")
@@ -44,6 +48,34 @@ def main():
     add_client_parser.add_argument("--allow_sms", choices=['yes', 'no'], help="Allow SMS notifications")
     add_client_parser.add_argument("--card_number", help="Client's card number")
 
+    # Update client command
+    update_client_parser = subparsers.add_parser("update-client", help="Update an existing client")
+    update_client_parser.add_argument("--id", type=int, required=True, help="The ID of the client to update")
+    update_client_parser.add_argument("--name", help="Client's name")
+    update_client_parser.add_argument("--lastname", help="Client's last name")
+    update_client_parser.add_argument("--phone", help="Client's phone number")
+    update_client_parser.add_argument("--email", help="Client's email address")
+    update_client_parser.add_argument("--father", help="Client's father name")
+    update_client_parser.add_argument("--points", type=int, help="Client's points")
+    update_client_parser.add_argument("--id_network", type=int, help="Network ID")
+    update_client_parser.add_argument("--id_group", type=int, help="Group ID")
+    update_client_parser.add_argument("--gender", choices=['male', 'female'], help="Client's gender")
+    update_client_parser.add_argument("--birthday", help="Client's birthday (Y-m-d)")
+    update_client_parser.add_argument("--allow_sms", choices=['yes', 'no'], help="Allow SMS notifications")
+    update_client_parser.add_argument("--card_number", help="Client's card number")
+
+    # Delete client command
+    delete_client_parser = subparsers.add_parser("delete-client", help="Delete a client by ID")
+    delete_client_parser.add_argument("--id", type=int, required=True, help="The ID of the client to delete")
+
+    # Refill client balance command
+    refill_client_parser = subparsers.add_parser("refill-client", help="Refill a client's balance")
+    refill_client_parser.add_argument("--id", type=int, required=True, help="The client's ID")
+    refill_client_parser.add_argument("--amount", type=float, required=True, help="The amount to add")
+    refill_client_parser.add_argument("--comment", type=str, required=True, help="A comment for the transaction")
+
+    # Get client actions command
+    subparsers.add_parser("get-client-actions", help="Get a list of available client actions")
 
     args = parser.parse_args()
 
@@ -73,6 +105,13 @@ def main():
             except Exception as e:
                 print(f"Error getting clients: {e}")
 
+        elif args.command == "get-client":
+            try:
+                client_info = client.get_client(args.id)
+                print(json.dumps(client_info, indent=2, ensure_ascii=False))
+            except Exception as e:
+                print(f"Error getting client: {e}")
+
         elif args.command == "add-client":
             try:
                 # Collect the optional arguments
@@ -97,6 +136,58 @@ def main():
                 print(json.dumps(new_client, indent=2, ensure_ascii=False))
             except Exception as e:
                 print(f"Error adding client: {e}")
+
+        elif args.command == "update-client":
+            try:
+                # Collect the optional arguments
+                update_data = {
+                    "name": args.name,
+                    "lastname": args.lastname,
+                    "phone": args.phone,
+                    "email": args.email,
+                    "father": args.father,
+                    "points": args.points,
+                    "id_network": args.id_network,
+                    "id_group": args.id_group,
+                    "gender": args.gender,
+                    "birthday": args.birthday,
+                    "allow_sms": args.allow_sms,
+                    "card_number": args.card_number,
+                }
+                # Filter out None values so we only send the fields to be updated
+                update_data = {k: v for k, v in update_data.items() if v is not None}
+
+                if not update_data:
+                    print("Error: You must provide at least one field to update.")
+                    return
+
+                updated_client = client.update_client(args.id, **update_data)
+                print("Client updated successfully:")
+                print(json.dumps(updated_client, indent=2, ensure_ascii=False))
+            except Exception as e:
+                print(f"Error updating client: {e}")
+
+        elif args.command == "delete-client":
+            try:
+                client.delete_client(args.id)
+                print(f"Client with ID {args.id} deleted successfully.")
+            except Exception as e:
+                print(f"Error deleting client: {e}")
+
+        elif args.command == "refill-client":
+            try:
+                result = client.refill_client_balance(args.id, args.amount, args.comment)
+                print("Balance refilled successfully:")
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+            except Exception as e:
+                print(f"Error refilling balance: {e}")
+        
+        elif args.command == "get-client-actions":
+            try:
+                actions = client.get_client_actions()
+                print(json.dumps(actions, indent=2, ensure_ascii=False))
+            except Exception as e:
+                print(f"Error getting client actions: {e}")
 
 
 if __name__ == "__main__":
