@@ -117,3 +117,14 @@ class FusionPOSClient:
         response.raise_for_status()
         return response.json()
 
+    def get_client_groups(self, isDeleted, **kwargs):
+        """Gets a list of client groups."""
+        url = f"{self.base_url}api/v2/clients-group"
+        headers = self._get_auth_headers()
+        params = {"isDeleted": isDeleted}
+        params.update(kwargs)
+
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return response.json()
+

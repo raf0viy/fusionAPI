@@ -1,0 +1,12 @@
+# .geminiignore
+# Files and directories to ignore for Gemini agent context
+
+venv/
+__pycache__/
+*.pyc
+*.log
+*.bak
+*.tmp
+.token
+auth.json
+TODO.md

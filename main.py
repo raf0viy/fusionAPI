@@ -77,6 +77,16 @@ def main():
     # Get client actions command
     subparsers.add_parser("get-client-actions", help="Get a list of available client actions")
 
+    # Get client groups command
+    get_groups_parser = subparsers.add_parser("get-client-groups", help="Get a list of client groups")
+    get_groups_parser.add_argument("--isDeleted", required=True, choices=['yes', 'no'], help="Filter by deleted status (required)")
+    get_groups_parser.add_argument("--orderBy", help="Order by field")
+    get_groups_parser.add_argument("--orderByPosition", help="Order direction (ASC/DESC)")
+    get_groups_parser.add_argument("--size", type=int, help="Number of items per page")
+    get_groups_parser.add_argument("--page", type=int, help="Page number")
+    get_groups_parser.add_argument("--search", help="Search by group name")
+    get_groups_parser.add_argument("--networkId", type=int, help="Filter by network ID")
+
     args = parser.parse_args()
 
     if args.command == "login":
@@ -188,6 +198,23 @@ def main():
                 print(json.dumps(actions, indent=2, ensure_ascii=False))
             except Exception as e:
                 print(f"Error getting client actions: {e}")
+
+        elif args.command == "get-client-groups":
+            try:
+                optional_params = {
+                    "orderBy": args.orderBy,
+                    "orderByPosition": args.orderByPosition,
+                    "size": args.size,
+                    "page": args.page,
+                    "search": args.search,
+                    "networkId": args.networkId,
+                }
+                optional_params = {k: v for k, v in optional_params.items() if v is not None}
+                
+                groups = client.get_client_groups(isDeleted=args.isDeleted, **optional_params)
+                print(json.dumps(groups, indent=2, ensure_ascii=False))
+            except Exception as e:
+                print(f"Error getting client groups: {e}")
 
 
 if __name__ == "__main__":

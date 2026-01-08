@@ -49,6 +49,16 @@ venv\Scripts\python.exe main.py login --domain <домен> --username <логи
 venv\Scripts\python.exe main.py get-clients
 ```
 
+#### Получить список групп клиентов
+**Важно:** `--isDeleted` является обязательным параметром (`yes` или `no`).
+```bash
+venv\Scripts\python.exe main.py get-client-groups --isDeleted no [другие опции]
+```
+*   Пример с дополнительными опциями:
+    ```bash
+    venv\Scripts\python.exe main.py get-client-groups --isDeleted no --search "VIP" --size 10
+    ```
+
 #### Получить одного клиента по ID
 ```bash
 venv\Scripts\python.exe main.py get-client --id <ID клиента>
