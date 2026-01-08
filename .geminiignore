@@ -8,5 +8,3 @@ __pycache__/
 *.bak
 *.tmp
 .token
-auth.json
-TODO.md
